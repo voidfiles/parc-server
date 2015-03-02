@@ -106,6 +106,20 @@ class TestArticles(MockModel, TestCase):
         article = Article.objects.get(id=resp['data']['id'])
         self.assertEqual(article.status, ARTICLE_STATUS.UNREAD)
 
+    def test_alter_article(self):
+        response = self.create_article()
+        resp = json.loads(response.content)
+
+        model = resp['data']
+        model['deleted'] = True
+        del model['html']
+        del model['title']
+        response = self.client.post('/api/v1/articles/%s' % (resp['data']['id']), content_type='application/json', data=json.dumps(model))
+        self.assertEqual(response.status_code, 200)
+
+        article = Article.objects.get(id=resp['data']['id'])
+        self.assertEqual(article.status, ARTICLE_STATUS.DELETED)
+
     def test_article_since(self):
         a1 = Article(title='123', url='http://example.com/123')
         a1.save()
