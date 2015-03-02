@@ -28,9 +28,9 @@ class StringIntType(BaseType):
 
 class OriginSchema(ParcSchema):
     title = StringType()
-    url = URLType()
-    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT)
-    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT)
+    url = StringType()
+    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
+    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
 
 
 class ArticleSchema(ParcSchema):
@@ -38,8 +38,8 @@ class ArticleSchema(ParcSchema):
     url = URLType(required=True)
     title = StringType()
     html = StringType()
-    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT)
-    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT)
+    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
+    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
     origin = ModelType(OriginSchema)
     tags = ListType(ModelType(TagSchema))
     archived = BooleanType()

@@ -51,6 +51,22 @@ def get_article(request, article_id):
 
     return article
 
+@api_export(method='POST', path=r'articles/(?P<article_id>[0-9]+)')
+@article_view(collection=False)
+def alter_article(request, article_id):
+    article_id = cast_int(article_id, None)
+
+    try:
+        article = Article.objects.get(id=article_id)
+    except Article.DoesNotExist:
+        raise SimpleHttpException('Article with ID does not exsits', 'missing', code=404)
+
+    article_a = api_object_from_request(request, ArticleApiObject)
+
+    article = Article.objects.update_from_api_object(article, article_a)
+
+    return article
+
 
 def move_article_to_status(article_id, status):
     article_id = cast_int(article_id, None)

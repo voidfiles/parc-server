@@ -118,6 +118,17 @@ class ArticleManger(models.Manager):
         return article, url
 
 
+    def update_from_api_object(self, article, article_a):
+        if article_a.deleted:
+            article.status = ARTICLE_STATUS.DELETED
+        elif article_a.archived:
+            article.status = ARTICLE_STATUS.ARCHIVED
+
+        article.save()
+
+        return article
+
+
 class Article(models.Model):
     title = models.TextField(max_length=1000, null=True, blank=True)
     url = models.CharField(max_length=255, null=True, blank=True, unique=True)
