@@ -12,6 +12,7 @@ django-taggit==0.12.2
 docopt==0.6.2
 gnureadline==6.3.3
 gunicorn==19.1.1
+iso8601==0.1.10
 lxml==3.4.1
 mock==1.0.1
 psycopg2==2.5.4
@@ -20,7 +21,7 @@ pytz==2014.10
 PyYAML==3.11
 requests==2.5.1
 responses==0.3.0
-schematics==1.0.2
+schematics==1.0.post0
 six==1.9.0
 SQLAlchemy==0.9.8
 vcrpy==1.1.4

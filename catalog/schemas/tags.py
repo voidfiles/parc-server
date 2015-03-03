@@ -1,6 +1,6 @@
 from schematics.types import StringType, IntType, DateTimeType
 
-from .base import ParcSchema, PARC_ISO_STRF_FORMAT, PARC_ISO_STRF_FORMATS
+from .base import ParcSchema, ISODateTimeType
 
 
 
@@ -15,5 +15,5 @@ class TagSchema(ParcSchema):
     id = IntType()
     name = StringType(validators=[lower])
     slug = StringType()
-    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
-    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
+    date_saved = ISODateTimeType()
+    date_updated = ISODateTimeType()
