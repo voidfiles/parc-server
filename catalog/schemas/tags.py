@@ -1,8 +1,8 @@
 from schematics.types import StringType, IntType, DateTimeType
 
-from .base import ParcSchema
+from .base import ParcSchema, PARC_ISO_STRF_FORMAT, PRAC_ISO_STRF_FORMATS
 
-PARC_ISO_STRF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
 
 def lower(value):
     if not value:
@@ -15,5 +15,5 @@ class TagSchema(ParcSchema):
     id = IntType()
     name = StringType(validators=[lower])
     slug = StringType()
-    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
-    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
+    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
+    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
