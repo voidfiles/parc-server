@@ -2,10 +2,9 @@ from schematics.types import BaseType, StringType, URLType, DateTimeType, Boolea
 from schematics.types.compound import ModelType, ListType
 from schematics.exceptions import ValidationError
 
-from .base import ParcSchema
+from .base import ParcSchema, PARC_ISO_STRF_FORMAT, PARC_ISO_STRF_FORMATS
 from .tags import TagSchema
 
-PARC_ISO_STRF_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
 class StringIntType(BaseType):
@@ -29,8 +28,8 @@ class StringIntType(BaseType):
 class OriginSchema(ParcSchema):
     title = StringType()
     url = StringType()
-    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
-    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
+    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
+    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
 
 
 class ArticleSchema(ParcSchema):
@@ -38,8 +37,8 @@ class ArticleSchema(ParcSchema):
     url = URLType(required=True)
     title = StringType()
     html = StringType()
-    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
-    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
+    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
+    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMATS)
     origin = ModelType(OriginSchema)
     tags = ListType(ModelType(TagSchema))
     archived = BooleanType()
