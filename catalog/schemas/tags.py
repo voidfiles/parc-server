@@ -15,5 +15,5 @@ class TagSchema(ParcSchema):
     id = IntType()
     name = StringType(validators=[lower])
     slug = StringType()
-    date_saved = DateTimeType(format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
-    date_updated = DateTimeType(format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
+    date_saved = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
+    date_updated = DateTimeType(serialized_format=PARC_ISO_STRF_FORMAT, formats=PARC_ISO_STRF_FORMAT)
