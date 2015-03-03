@@ -1,0 +1,1 @@
+Throw away writes that are from sync operations - last write wins.
