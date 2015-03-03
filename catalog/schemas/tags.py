@@ -1,6 +1,6 @@
 from schematics.types import StringType, IntType, DateTimeType
 
-from .base import ParcSchema, PARC_ISO_STRF_FORMAT, PRAC_ISO_STRF_FORMATS
+from .base import ParcSchema, PARC_ISO_STRF_FORMAT, PARC_ISO_STRF_FORMATS
 
 
 
