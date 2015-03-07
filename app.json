@@ -4,24 +4,24 @@
   "website": "https://github.com/ParcReader/parc-server",
   "success_url": "/heroku-setup",
   "addons": ["heroku-postgresql:hobby-dev"],
-  "repository": "https://github.com/ParcReader/parc-server"
+  "repository": "https://github.com/ParcReader/parc-server",
   "keywords": ["python", "django", "api"],
   "env": {
     "PARC_SECRET_KEY": {
-            "description": "This gets generated",
-            "generator": "secret"
+      "description": "This gets generated",
+      "generator": "secret"
     },
     "EMAIL": {
-            "description": "Email for this user",
-            "value": ""
+      "description": "Email for this user",
+      "value": ""
     },
     "PASSWORD": {
-            "description": "Password you want to use",
-            "value": ""
+      "description": "Password you want to use",
+      "value": ""
     },
     "PARC_DEBUG": {
-            "description": "Set the app into debug mode 1 = debug mode",
-            "value": "0"
+      "description": "Set the app into debug mode 1 = debug mode",
+      "value": "0"
     }
   },
   "scripts": {
