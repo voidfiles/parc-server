@@ -1,10 +1,12 @@
+from datetime import datetime, timedelta
+
 from django.test import TestCase
 import json
 import os
 import responses
 
 from catalog.models import Article, ARTICLE_STATUS
-
+from catalog.schemas.base import PARC_ISO_STRF_FORMAT
 
 DEFAULT_ARTICLE_URL = 'http://recode.net/2014/12/04/amazon-unveils-its-own-line-of-diapers-confirming-partners-biggest-fears/'
 
@@ -114,28 +116,30 @@ class TestArticles(MockModel, TestCase):
         model['deleted'] = True
         del model['html']
         del model['title']
+        model['date_updated'] = (datetime.utcnow() + timedelta(hours=2)).strftime(PARC_ISO_STRF_FORMAT)
         response = self.client.post('/api/v1/articles/%s' % (resp['data']['id']), content_type='application/json', data=json.dumps(model))
         self.assertEqual(response.status_code, 200)
 
         article = Article.objects.get(id=resp['data']['id'])
         self.assertEqual(article.status, ARTICLE_STATUS.DELETED)
 
-    def test_article_since(self):
-        a1 = Article(title='123', url='http://example.com/123')
-        a1.save()
-        a2 = Article(title='124', url='http://example.com/124')
-        a2.save()
-        a3 = Article(title='125', url='http://example.com/125')
-        a3.save()
-        a4 = Article(title='126', url='http://example.com/126')
-        a4.save()
+    def test_last_write_win(self):
+        response = self.create_article()
+        resp = json.loads(response.content)
 
-        assert Article.objects.filter(updated__gte=a1.updated).count() == 4
+        article = Article.objects.get(id=int(resp['data']['id']))
 
-        a2.title = "127"
-        a2.save()
-        a4.title = "128"
-        a4.save()
+        article.updated = datetime.utcnow() - timedelta(hours=1)
+        article.save()
+        model_data = resp['data']
+        model_data['date_updated'] = (datetime.utcnow() + timedelta(hours=2)).strftime(PARC_ISO_STRF_FORMAT)
 
-        assert Article.objects.filter(updated__gte=a2.updated).count() == 2
+        response = self.client.post('/api/v1/articles/%s/' % (model_data['id']), data=json.dumps(model_data), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
 
+        model_data['date_updated'] = (datetime.utcnow() - timedelta(hours=2)).strftime(PARC_ISO_STRF_FORMAT)
+
+        response = self.client.post('/api/v1/articles/%s/' % (model_data['id']), data=json.dumps(model_data), content_type='application/json')
+        resp = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(resp['meta']['error_slug'], 'already-updated')

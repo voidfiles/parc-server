@@ -23,7 +23,9 @@ class ISODateTimeType(BaseType):
             return value
 
         try:
-            return iso8601.parse_date(value)
+            dt = iso8601.parse_date(value)
+            dt = dt.replace(tzinfo=None)
+            return dt
         except (ValueError, TypeError):
             pass
 

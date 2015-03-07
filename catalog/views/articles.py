@@ -63,6 +63,9 @@ def alter_article(request, article_id):
 
     article_a = api_object_from_request(request, ArticleApiObject)
 
+    if article.updated > article_a.date_updated:
+        raise SimpleHttpException('Article on server has a more recent date_updated', 'already-updated', code=400)
+
     article = Article.objects.update_from_api_object(article, article_a)
 
     return article
