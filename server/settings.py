@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = os.environ.get('PARC_SECRET_KEY', 'secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("PARC_DEBUG", "0") == "0"
+DEBUG = unicode(os.environ.get("PARC_DEBUG", "1")) == "1"
 
 TEMPLATE_DEBUG = True
 
