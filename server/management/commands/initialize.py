@@ -8,7 +8,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         email = os.environ.get('EMAIL', 'voidfiles@example.com')
         password = os.environ.get('PASSWORD', 'testing')
-        user = User(email=email, username=email)
+        user, created = User.objects.get_or_create(email=email)
+
         user.set_password(password)
 
         user.save()

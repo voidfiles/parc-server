@@ -26,6 +26,6 @@
     }
   },
   "scripts": {
-    "postdeploy": "python manage.py initialize"
+    "postdeploy": "/bin/bash initialize.sh"
   }
 }
