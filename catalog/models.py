@@ -1,4 +1,5 @@
 from urlparse import urlparse
+import requests
 
 from django.db import models
 from taggit.managers import TaggableManager
@@ -117,7 +118,6 @@ class ArticleManger(models.Manager):
 
         return article, url
 
-
     def update_from_api_object(self, article, article_a):
         if article_a.deleted:
             article.status = ARTICLE_STATUS.DELETED
@@ -169,3 +169,74 @@ class Article(models.Model):
     @property
     def archived(self):
         return self.status == ARTICLE_STATUS.ARCHIVED
+
+
+IMPORT_JOB_STATUS = Choices(
+    (1, 'RUNNING', 'Running'),
+    (2, 'DONE', 'Done'),
+    (3, 'FAILED', 'Failed'),
+)
+
+
+class ImportJobManager(models.Manager):
+
+    def create_from_api_object(self, api_obj):
+        return self.create_from_url(api_obj.url)
+
+    def create_from_url(self, source_url):
+        resp = requests.get(source_url)
+        resp.raise_for_status()
+
+        return self.create_from_html(resp.content, source_url)
+
+    def create_from_html(self, html, from_url=None):
+        from integration.get_pocket import process_articles_delayed
+
+        result = process_articles_delayed(html)
+
+        import_job = self.model(celery_id=result.id)
+
+        import_job.info.source_html = html
+        if from_url:
+            import_job.info.source_url = from_url
+
+        import_job.save()
+
+        return import_job
+
+    def close_job(self, job):
+        job.status = IMPORT_JOB_STATUS.DONE
+
+        job.save()
+
+        return job
+
+
+class JobInfo(Pack2):
+    source_url = PackField(key='s', docstring='Source URL', null_ok=True)
+    source_html = PackField(key='h', docstring='Source HTML', null_ok=True)
+    error_message = PackField(key='e', docstring='Reason Why Job Failed', null_ok=True)
+
+
+class ImportJob(models.Model):
+    celery_id = models.CharField(null=True, blank=True, max_length=255)
+    created = CreateDateTimeField()
+    updated = LastModifiedDateTimeField()
+    extra = DictField(default=dict)
+    status = models.IntegerField(choices=IMPORT_JOB_STATUS, default=IMPORT_JOB_STATUS.RUNNING)
+
+    info = SinglePack2Container(pack_class=JobInfo, field_name='extra', pack_key='j')
+
+    objects = ImportJobManager()
+
+    def __repr__(self):
+        return '<ImportJob %s %s>' % (self.info.source_url, self.created)
+
+    def done(self):
+        return self.status == IMPORT_JOB_STATUS.DONE
+
+    def failed(self):
+        return self.status == IMPORT_JOB_STATUS.FAILED
+
+    def running(self):
+        return self.status == IMPORT_JOB_STATUS.RUNNING

@@ -2,10 +2,12 @@ import logging
 from datetime import datetime
 import lxml.html
 from schematics.exceptions import ModelValidationError
+from celery import chord
 
 from catalog.article import create_article_from_api_obj, FailedToCreateArticle
 from catalog.objects import ArticleApiObject
 from catalog.models import ARTICLE_STATUS
+from .tasks import create_article_from_api_obj_delayed, close_import_job
 
 logger = logging.getLogger(__name__)
 
@@ -66,3 +68,17 @@ def process_articles(html):
                 create_article_from_api_obj(article_a, use_time_info=True, status=ARTICLE_STATUS.ARCHIVED)
             except FailedToCreateArticle:
                 continue
+
+
+def process_articles_delayed(html):
+    prospective_articles = parse_pocket_export(html)
+    sigs = []
+    if 'unread' in prospective_articles:
+        for article_a in prospective_articles['unread']:
+            sigs += [create_article_from_api_obj_delayed.s(article_a, use_time_info=True)]
+
+    if 'read archive' in prospective_articles:
+        for article_a in prospective_articles['read archive']:
+            sigs += [create_article_from_api_obj_delayed.s(article_a, use_time_info=True, status=ARTICLE_STATUS.ARCHIVED)]
+
+    return chord(sigs, close_import_job.s())()

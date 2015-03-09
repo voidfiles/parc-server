@@ -51,6 +51,7 @@ def get_article(request, article_id):
 
     return article
 
+
 @api_export(method='POST', path=r'articles/(?P<article_id>[0-9]+)')
 @article_view(collection=False)
 def alter_article(request, article_id):

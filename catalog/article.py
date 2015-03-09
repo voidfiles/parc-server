@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from django.db import IntegrityError
+
 import requests
 from lxml.etree import tounicode
 from breadability.readable import Article as ReadableArticle
@@ -154,7 +156,10 @@ def create_article_from_api_obj(article_a, use_time_info=False, status=ARTICLE_S
         if article_a.date_updated:
             kwargs['updated'] = article_a.date_updated
 
-    article = Article.objects.create(**kwargs)
+    try:
+        article = Article.objects.create(**kwargs)
+    except IntegrityError:
+        return Article.objects.for_url(kwargs['url'])
 
     if 'og' in meta_data:
         article.social_data.og = meta_data['og']

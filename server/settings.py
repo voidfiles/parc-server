@@ -37,6 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'kombu.transport.django',
+    'djcelery',
     'catalog',
     'taggit',
     'server',
@@ -65,6 +67,8 @@ DATABASES = {'default': dj_database_url.config(default=DEFAULT_DATABASE_PATH)}
 
 if 'db.sqlite3' not in DATABASES['default']['NAME']:
     DATABASES['default']['ENGINE'] = 'django_postgrespool'
+    DATABASES['default']['AUTOCOMMIT'] = True
+    DATABASES['default']['ATOMIC_REQUESTS'] = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -133,4 +137,5 @@ CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://).*$', )
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
-
+BROKER_URL = 'django://'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'

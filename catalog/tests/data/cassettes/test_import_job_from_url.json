@@ -1,0 +1,60 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.5.1 CPython/2.7.6 Darwin/14.0.0]
+    method: GET
+    uri: https://gist.githubusercontent.com:443/voidfiles/eed96426493c148caa8c/raw/2e742622f1538b8f9f60abdad09f1e337bf41e68/some.html
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA7VUwY7TMBC99yu8OTPrpGmBQhoJluUC0q6gi8QJuckkMXXsYDvNRuLjGSetughO
+        SESK4rHsefPevEl29e7uZvf1/pY1vlX5Ips/jJ7sCuCzYcromgldMt8IfXCsMpYJpShEVknXAOSL
+        6XiDopyXU9iiF5TUd4A/enncRjdGe9QedmOHESvmaBt5fPQ8oL5mRSOsQ7992L2HlxHjT7J56RXm
+        96Y4oGe3j52xPuPz5ozOL/DZ3pTjk7tNkj9oS9VlnJbT8anCnvieg2lDyTyjmi1W2yhU/orzYRiu
+        tcRWaCX218bWfBknS57EvFBihKKx0hErhxqMBtIENA4OpC575+0IA0IpS2JNGniEXpdonSc5oTFD
+        2CwOaqR7UtcOKtIVTFVNeQolq4pHzMsWv4myxHIbJelmtYnjZLOmfVG7bSQGdKbFZ070BUa567tO
+        YUsyCzsySYLbo8Qh4yLPONFb/I2jb0xfN74QXihTXxem5XtLJRKh2liLSgXSaSCdxDCaXtfQoSGg
+        wDnwoHpHUHQFy7CWFk51wXezd3+SWC9Xz+PVizOJKD+p/d8ruQhxbnzGgw0upiCHfCKrsDe2aOQR
+        /9EyJMIRbY2TmCTeiiecFFyncbpJlzz0txL7XpnegSIYR22HI7Wtt9R50UlqBRzIFK04kGHgQP7a
+        06vQooXOmkoqGqLfvLFK4lWyTNPlRdZdmNETDptwmKnYCYedcNgFh31APc36W/p+DFjsJwtJvpAQ
+        ZwtdtJqkmyaHzyNHak1/kV8Rt0RBVgQAAA==
+    headers:
+      accept-ranges: [bytes]
+      access-control-allow-origin: ['*']
+      cache-control: ['max-age=300, public']
+      connection: [Keep-Alive]
+      content-disposition: [inline]
+      content-encoding: [gzip]
+      content-length: ['595']
+      content-security-policy: ['default-src *; script-src ''self'' https://gist-assets.github.com
+          *.google-analytics.com https://collector-cdn.github.com; frame-src ''self''
+          render.githubusercontent.com https://gist-assets.github.com *.google-analytics.com
+          https://collector-cdn.github.com; style-src ''self'' ''unsafe-inline'' https://gist-assets.github.com;
+          object-src https://gist-assets.github.com; report-uri /_/csp_reports']
+      content-transfer-encoding: [binary]
+      content-type: [text/plain]
+      date: ['Mon, 09 Mar 2015 07:20:30 GMT']
+      etag: [W/"47270f6c02d6493466410fc652c7aa26"]
+      expires: ['Mon, 09 Mar 2015 07:25:30 GMT']
+      keep-alive: ['timeout=10, max=50']
+      server: [GitHub.com]
+      source-age: ['0']
+      status: [200 OK]
+      strict-transport-security: [max-age=31536000]
+      vary: [AuthorizationAccept-Encoding]
+      via: [1.1 varnish]
+      x-cache: [MISS]
+      x-cache-hits: ['0']
+      x-content-type-options: [nosniff]
+      x-frame-options: [deny]
+      x-github-request-id: ['C71B4F19:55AF:25CAEB9:54FD49BE']
+      x-request-id: [723e293c-f832-457d-a63b-bae66ea566c9]
+      x-runtime: ['0.014526']
+      x-served-by: ['b623e174d90eee91279334e37dfb12ce, cache-lax1435-LAX']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+version: 1

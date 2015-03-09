@@ -1,1 +1,1 @@
-web: gunicorn server.wsgi --log-file -
+web: with_celery.sh

@@ -1,28 +1,9 @@
-from schematics.types import BaseType, StringType, URLType, DateTimeType, BooleanType
+from schematics.types import StringType, URLType, BooleanType
 from schematics.types.compound import ModelType, ListType
-from schematics.exceptions import ValidationError
 
-from .base import ParcSchema, ISODateTimeType
+
+from .base import ParcSchema, ISODateTimeType, StringIntType
 from .tags import TagSchema
-
-
-
-class StringIntType(BaseType):
-    def to_native(self, value):
-        try:
-            value = int(value)
-            return value
-        except:
-            return
-
-    def validate_stringint(self, value):
-        try:
-            value = int(value)
-        except:
-            ValidationError('"%s" is not a valid id' % value)
-
-    def to_primitive(self, value, context=None):
-        return unicode(value)
 
 
 class OriginSchema(ParcSchema):
