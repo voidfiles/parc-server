@@ -1,4 +1,4 @@
 #! /bin/bash
 
 gunicorn server.wsgi --log-file - &
-python manage.py celery --log-level=INFO -c3
+python manage.py celery worker --loglevel=INFO -c3
