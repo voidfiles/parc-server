@@ -1,1 +1,1 @@
-web: with_celery.sh
+web: /bin/bash with_celery.sh
