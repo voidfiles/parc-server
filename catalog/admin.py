@@ -7,7 +7,7 @@ class OriginAdmin(admin.ModelAdmin):
 
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'url', )
+    list_display = ('title', 'url', 'date_saved', 'date_updated')
 
 
 admin.site.register(Origin, OriginAdmin)
