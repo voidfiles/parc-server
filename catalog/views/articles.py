@@ -115,7 +115,7 @@ def unarchive_article(request, article_id):
     return move_article_to_status(article_id, ARTICLE_STATUS.UNREAD)
 
 
-@api_export(method='GET', path=r'articles/(?P<article_id>[0-9]+)/annotations/(?P<annotation_id>[0-9]+)/')
+@api_export(method='GET', path=r'articles/(?P<article_id>[0-9]+)/annotations/(?P<annotation_id>[0-9]+)')
 @annotation_view(collection=False)
 def get_annotation(request, article_id, annotation_id):
     article_id = cast_int(article_id, None)
@@ -137,7 +137,7 @@ def get_annotation(request, article_id, annotation_id):
     return annotation
 
 
-@api_export(method='POST', path=r'articles/(?P<article_id>[0-9]+)/annotations/')
+@api_export(method='POST', path=r'articles/(?P<article_id>[0-9]+)/annotations')
 @annotation_view(collection=False)
 def create_annotation(request, article_id):
     article_id = cast_int(article_id, None)
