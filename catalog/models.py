@@ -1,15 +1,29 @@
 from urlparse import urlparse
 import requests
 
-from django.db import models
+from django.db import models, transaction
 from taggit.managers import TaggableManager
 from taggit.models import ItemBase, TagBase
 
 from paucore.data.fields import (CreateDateTimeField, LastModifiedDateTimeField,
                                  DictField, Choices)
-from paucore.data.pack2 import (Pack2, SinglePack2Container, PackField)
+from paucore.data.pack2 import (Pack2, SinglePack2Container, PackField,
+                                IntegerPackField, AutoIncrementDictPack2Container)
+from paucore.utils.python import memoized_property
 
 from .url_utils import canonicalize_url
+
+from contextlib import contextmanager
+
+
+class ParcManager(models.Manager):
+
+    @contextmanager
+    def edit(self, instance):
+        with transaction.atomic():
+                model_edit = self.get_queryset().select_for_update().get(pk=instance.pk)
+                yield model_edit
+                model_edit.save()
 
 
 class Tag(TagBase):
@@ -107,7 +121,7 @@ ARTICLE_STATUS = Choices(
 )
 
 
-class ArticleManger(models.Manager):
+class ArticleManger(ParcManager):
     def for_url(self, url):
         url = canonicalize_url(url)
 
@@ -128,6 +142,26 @@ class ArticleManger(models.Manager):
 
         return article
 
+    def touch_article(self, article):
+        with self.edit(article) as article_edit:
+            pass
+
+        return article_edit
+
+    def bulk_Load_articles(self, articles):
+        article_pks = [x.id for x in articles]
+        annotations = Annotation.objects.filter(article_id__in=article_pks)
+
+        for article in articles:
+            article.annotations = []
+
+        articles_by_pk = {x.pk: x for x in articles}
+
+        for annotation in annotations:
+            articles_by_pk[annotation.article_id].annotations += [annotation]
+
+        return articles
+
 
 class Article(models.Model):
     title = models.TextField(max_length=1000, null=True, blank=True)
@@ -147,6 +181,10 @@ class Article(models.Model):
 
     def __repr__(self):
         return '<SiteArticle %r>' % (self.title,)
+
+    @memoized_property
+    def annotations(self):
+        return Annotation.objects.filter(article_id=self.pk)
 
     @property
     def domain(self):
@@ -240,3 +278,38 @@ class ImportJob(models.Model):
 
     def running(self):
         return self.status == IMPORT_JOB_STATUS.RUNNING
+
+
+class AnnotationManager(ParcManager):
+
+    def create_from_api_obj(self, article, api_obj):
+        annotation = self.model(article=article, quote=api_obj.get('quote'), text=api_obj.get('text'))
+        annotation.save()
+
+        with self.edit(annotation) as annotation_edit:
+            for r in api_obj.get('ranges', []):
+                idx, item = annotation_edit.ranges.new_item()
+                for key in ('start', 'startOffset', 'end', 'endOffset'):
+                    setattr(item, key, r.get(key))
+
+        return annotation_edit
+
+
+class Range(Pack2):
+    start = PackField(key='s', docstring='start', null_ok=True)
+    startOffset = IntegerPackField(key='so', docstring='startOffset', null_ok=True)
+    end = PackField(key='e', docstring='e', null_ok=True)
+    endOffset = IntegerPackField(key='eo', docstring='endOffset', null_ok=True)
+
+
+class Annotation(models.Model):
+    article = models.ForeignKey(Article)
+    quote = models.TextField()
+    text = models.TextField()
+
+    ranges = AutoIncrementDictPack2Container(pack_class=Range, field_name='extra', pack_key='r')
+
+    objects = AnnotationManager()
+    created = CreateDateTimeField()
+    updated = LastModifiedDateTimeField()
+    extra = DictField(default=dict)

@@ -30,8 +30,6 @@ class MockModel(object):
                       body=body, status=200,
                       content_type='text/html')
 
-
-class TestArticles(MockModel, TestCase):
     def create_article(self):
         with responses.mock:
             self.add_article_content_to_responses()
@@ -42,6 +40,9 @@ class TestArticles(MockModel, TestCase):
             }), content_type='application/json')
 
         return response
+
+
+class TestArticles(MockModel, TestCase):
 
     def test_add_article(self):
         response = self.create_article()
@@ -134,12 +135,40 @@ class TestArticles(MockModel, TestCase):
         model_data = resp['data']
         model_data['date_updated'] = (datetime.utcnow() + timedelta(hours=2)).strftime(PARC_ISO_STRF_FORMAT)
 
-        response = self.client.post('/api/v1/articles/%s/' % (model_data['id']), data=json.dumps(model_data), content_type='application/json')
+        response = self.client.post('/api/v1/articles/%s/' % (model_data['id']), data=json.dumps(model_data),
+                                    content_type='application/json')
         self.assertEqual(response.status_code, 200)
 
         model_data['date_updated'] = (datetime.utcnow() - timedelta(hours=2)).strftime(PARC_ISO_STRF_FORMAT)
 
-        response = self.client.post('/api/v1/articles/%s/' % (model_data['id']), data=json.dumps(model_data), content_type='application/json')
+        response = self.client.post('/api/v1/articles/%s/' % (model_data['id']), data=json.dumps(model_data),
+                                    content_type='application/json')
         resp = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(resp['meta']['error_slug'], 'already-updated')
+
+
+class TestAnnotations(MockModel, TestCase):
+    def test_add_annotation(self):
+        response = self.create_article()
+        resp = json.loads(response.content)
+
+        annotation = {
+            'quote': 'testing',
+            'text': "text of the ",
+            'ranges': [{
+                'start': '/div',
+                'startOffset': 10,
+                'end': '/div',
+                'endOffset': 0
+            }]
+        }
+
+        response = self.client.post('/api/v1/articles/%s/annotations/' % (resp['data']['id']), data=json.dumps(annotation),
+                                    content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+
+        resp = self.client.get('/api/v1/articles/%s/' % (resp['data']['id']), content_type='application/json')
+        article_response = json.loads(resp.content)
+        assert len(article_response['data']['annotations']) == 1

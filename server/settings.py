@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'taggit',
     'server',
     'integration',
+    'django_nose',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -139,3 +140,4 @@ CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://).*$', )
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 BROKER_URL = 'django://'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

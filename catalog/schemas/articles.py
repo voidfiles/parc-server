@@ -1,7 +1,7 @@
 from schematics.types import StringType, URLType, BooleanType
 from schematics.types.compound import ModelType, ListType
 
-
+from .annotations import AnnotationSchema
 from .base import ParcSchema, ISODateTimeType, StringIntType
 from .tags import TagSchema
 
@@ -22,5 +22,6 @@ class ArticleSchema(ParcSchema):
     date_updated = ISODateTimeType()
     origin = ModelType(OriginSchema)
     tags = ListType(ModelType(TagSchema))
+    annotations = ListType(ModelType(AnnotationSchema))
     archived = BooleanType()
     deleted = BooleanType()

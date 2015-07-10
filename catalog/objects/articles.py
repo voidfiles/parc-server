@@ -1,5 +1,6 @@
 from catalog.schemas import ArticleSchema, OriginSchema
 
+from .annotations import AnnotationApiObject
 from .base import ParcApiObject
 from .tags import TagApiObject
 
@@ -46,5 +47,6 @@ class ArticleApiObject(ParcApiObject):
             data['origin'] = OriginApiObject.from_model(model.origin)
 
         data['tags'] = [TagApiObject.from_model(tag) for tag in model.tags.all()]
+        data['annotations'] = [AnnotationApiObject.from_model(annotation) for annotation in model.annotations]
 
         return cls.get_schema()(data)
