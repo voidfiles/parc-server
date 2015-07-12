@@ -134,7 +134,7 @@ def get_annotation(request, article_id, annotation_id):
 
     try:
         annotation = Annotation.objects.get(id=article_id)
-    except Article.DoesNotExist:
+    except Annotation.DoesNotExist:
         raise SimpleHttpException('Article with ID does not exsits', 'missing', code=404)
 
     if annotation.article_id != article_id:

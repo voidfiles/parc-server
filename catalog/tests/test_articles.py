@@ -263,3 +263,11 @@ class TestAnnotations(MockModel, TestCase):
 
         article, _ = self.api_get('/api/v1/articles/%s/' % (article['id']))
         assert len(article['annotations']) == 3
+
+
+    def test_add_null_annotation(self):
+        response = self.create_article(extra_data={
+            'annotations': [None]
+        })
+
+        self.assertEqual(response.status_code, 200)

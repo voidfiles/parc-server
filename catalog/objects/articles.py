@@ -26,6 +26,15 @@ class ArticleApiObject(ParcApiObject):
     @classmethod
     def from_request(cls, request, *args, **kwargs):
         data = cls._parse_json_from_request(request, *args, **kwargs)
+
+        annotations = filter(None, data.get('annotations', []))
+        if 'annotations' in data:
+            annotations = filter(None, data.get('annotations', []))
+            if not annotations:
+                del data['annotations']
+            else:
+                data['annotations'] = annotations
+
         obj = cls._deserialize(cls.get_schema(), data)
 
         return obj
