@@ -30,16 +30,47 @@ class MockModel(object):
                       body=body, status=200,
                       content_type='text/html')
 
-    def create_article(self):
+    def create_article(self, extra_data=None):
+        article = {
+            'url': self.DEFAULT_ARTICLE_URL,
+            'tags': [{'name': 'diaper'}, {'name': 'DIAPER'}]
+        }
+
+        if extra_data:
+            article.update(extra_data)
+
         with responses.mock:
             self.add_article_content_to_responses()
 
-            response = self.client.post('/api/v1/articles', json.dumps({
-                'url': self.DEFAULT_ARTICLE_URL,
-                'tags': [{'name': 'diaper'}, {'name': 'DIAPER'}]
-            }), content_type='application/json')
+            response = self.client.post('/api/v1/articles', json.dumps(article), content_type='application/json')
 
         return response
+
+    def json_resp(self, url, data=None, method=None, assert_status_code=None,  *args, **kwargs):
+        kwargs.setdefault('content_type', 'application/json')
+
+        if data and method in ('post', 'put'):
+            data = json.dumps(data)
+
+        resp = getattr(self.client, method)(url, data, *args, **kwargs)
+        if assert_status_code:
+            self.assertEqual(assert_status_code, resp.status_code)
+
+        parsed_resp = json.loads(resp.content)
+
+        return parsed_resp.get('data', {}), parsed_resp['meta']
+
+    def api_get(self, *args, **kwargs):
+        return self.json_resp(method='get', *args, **kwargs)
+
+    def api_post(self, *args, **kwargs):
+        return self.json_resp(method='post', *args, **kwargs)
+
+    def api_put(self, *args, **kwargs):
+        return self.json_resp(method='put', *args, **kwargs)
+
+    def api_delete(self, *args, **kwargs):
+        return self.json_resp(method='delete', *args, **kwargs)
 
 
 class TestArticles(MockModel, TestCase):
@@ -149,11 +180,8 @@ class TestArticles(MockModel, TestCase):
 
 
 class TestAnnotations(MockModel, TestCase):
-    def test_add_annotation(self):
-        response = self.create_article()
-        resp = json.loads(response.content)
-
-        annotation = {
+    def build_annotation(self):
+        return {
             'quote': 'testing',
             'text': "text of the ",
             'ranges': [{
@@ -164,6 +192,12 @@ class TestAnnotations(MockModel, TestCase):
             }]
         }
 
+    def test_add_annotation(self):
+        response = self.create_article()
+        resp = json.loads(response.content)
+
+        annotation = self.build_annotation()
+
         response = self.client.post('/api/v1/articles/%s/annotations/' % (resp['data']['id']), data=json.dumps(annotation),
                                     content_type='application/json')
 
@@ -172,3 +206,43 @@ class TestAnnotations(MockModel, TestCase):
         resp = self.client.get('/api/v1/articles/%s/' % (resp['data']['id']), content_type='application/json')
         article_response = json.loads(resp.content)
         assert len(article_response['data']['annotations']) == 1
+
+    def test_add_annotation_to_artcle(self):
+        annotation = self.build_annotation()
+        response = self.create_article(extra_data={
+            'annotations': [annotation]
+        })
+
+        article_response = json.loads(response.content)
+
+        article, _ = self.api_get('/api/v1/articles/%s/' % (article_response['data']['id']), content_type='application/json')
+        assert len(article['annotations']) == 1
+
+        annotation = self.build_annotation()
+        article['annotations'] += [annotation]
+
+        article['date_updated'] = (datetime.utcnow() + timedelta(hours=1)).strftime(PARC_ISO_STRF_FORMAT)
+        self.api_post('/api/v1/articles/%s' % (article['id']), data=article, assert_status_code=200)
+
+        article, _ = self.api_get('/api/v1/articles/%s/' % (article['id']))
+        assert len(article['annotations']) == 2
+
+        annotation = self.build_annotation()
+        annotation['id'] = 34
+        article['annotations'] += [annotation]
+
+        article['date_updated'] = (datetime.utcnow() + timedelta(hours=2)).strftime(PARC_ISO_STRF_FORMAT)
+        self.api_post('/api/v1/articles/%s' % (article['id']), data=article, assert_status_code=200)
+
+        article, _ = self.api_get('/api/v1/articles/%s/' % (article['id']))
+        assert len(article['annotations']) == 3
+
+        annotation = self.build_annotation()
+        annotation['id'] = article['annotations'][0]['id']
+        article['annotations'] += [annotation]
+
+        article['date_updated'] = (datetime.utcnow() + timedelta(hours=3)).strftime(PARC_ISO_STRF_FORMAT)
+        self.api_post('/api/v1/articles/%s' % (article['id']), data=article, assert_status_code=200)
+
+        article, _ = self.api_get('/api/v1/articles/%s/' % (article['id']))
+        assert len(article['annotations']) == 3

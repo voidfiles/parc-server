@@ -24,6 +24,9 @@ def create_article(request):
         raise SimpleHttpException(err.message, 'article-failed-create', code=500)
 
     Article.objects.bulk_Load_articles([article])
+    annotations = Annotation.objects.update_from_article_api_obj(article, article_a)
+    if annotations:
+        article = Article.objects.touch_article(article)
 
     return article
 
@@ -75,6 +78,9 @@ def alter_article(request, article_id):
         raise SimpleHttpException('Article on server has a more recent date_updated', 'already-updated', code=400)
 
     article = Article.objects.update_from_api_object(article, article_a)
+    annotations = Annotation.objects.update_from_article_api_obj(article, article_a)
+    if annotations:
+        article = Article.objects.touch_article(article)
 
     Article.objects.bulk_Load_articles([article])
 

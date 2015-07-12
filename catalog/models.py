@@ -153,12 +153,12 @@ class ArticleManger(ParcManager):
         annotations = Annotation.objects.filter(article_id__in=article_pks)
 
         for article in articles:
-            article.annotations = []
+            article._cached_annotations = []
 
         articles_by_pk = {x.pk: x for x in articles}
 
         for annotation in annotations:
-            articles_by_pk[annotation.article_id].annotations += [annotation]
+            articles_by_pk[annotation.article_id]._cached_annotations += [annotation]
 
         return articles
 
@@ -182,7 +182,7 @@ class Article(models.Model):
     def __repr__(self):
         return '<SiteArticle %r>' % (self.title,)
 
-    @memoized_property
+    @memoized_property()
     def annotations(self):
         return Annotation.objects.filter(article_id=self.pk)
 
@@ -281,6 +281,36 @@ class ImportJob(models.Model):
 
 
 class AnnotationManager(ParcManager):
+
+    def update_from_article_api_obj(self, article, article_api_obj):
+        if not article_api_obj.annotations:
+            return
+
+        new_annotations = []
+        annotations_with_ids = []
+
+        for annotation in article_api_obj.annotations:
+            annotation_id = annotation.get('id')
+            if not annotation_id:
+                new_annotations += [annotation]
+            else:
+                annotations_with_ids += [annotation]
+
+        annotations_with_ids_by_id = {x.id: x for x in annotations_with_ids}
+
+        annotations = self.filter(article=article).in_bulk(annotations_with_ids_by_id.keys())
+
+        missing_ids = set(annotations_with_ids_by_id.keys()) - set(annotations.keys())
+
+        for _id in missing_ids:
+            new_annotations += [annotations_with_ids_by_id.get(_id)]
+
+        created_annotations = []
+
+        for annotation in new_annotations:
+            created_annotations += [self.create_from_api_obj(article, annotation)]
+
+        return created_annotations
 
     def create_from_api_obj(self, article, api_obj):
         annotation = self.model(article=article, quote=api_obj.get('quote'), text=api_obj.get('text'))
