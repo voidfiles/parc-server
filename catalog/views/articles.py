@@ -159,3 +159,24 @@ def create_annotation(request, article_id):
     Article.objects.touch_article(article)
 
     return annotation
+
+
+@api_export(method='DELETE', path=r'articles/(?P<article_id>[0-9]+)/annotations/(?P<annotation_id>[0-9]+)')
+def delete_annotation(request, article_id, annotation_id):
+    article_id = cast_int(article_id, None)
+    annotation_id = cast_int(annotation_id, None)
+
+    try:
+        article = Article.objects.get(id=article_id)
+    except Article.DoesNotExist:
+        raise SimpleHttpException('Article with ID does not exsits', 'missing', code=404)
+
+    try:
+        annotation = Annotation.objects.get(article=article, id=annotation_id)
+    except Article.DoesNotExist:
+        raise SimpleHttpException('Annotation_id with ID does not exsits', 'missing', code=404)
+
+    annotation.delete()
+
+    return ''
+

@@ -192,6 +192,23 @@ class TestAnnotations(MockModel, TestCase):
             }]
         }
 
+    def test_delete_annotation(self):
+        annotation = self.build_annotation()
+        response = self.create_article(extra_data={
+            'annotations': [annotation]
+        })
+
+        article_response = json.loads(response.content)
+
+        article, _ = self.api_get('/api/v1/articles/%s/' % (article_response['data']['id']))
+        assert len(article['annotations']) == 1
+
+        article, _ = self.api_delete('/api/v1/articles/%s/annotations/%s/' % (article['id'], article['annotations'][0]['id']),
+                                     assert_status_code=200)
+
+        article, _ = self.api_get('/api/v1/articles/%s/' % (article_response['data']['id']))
+        assert len(article.get('annotations', [])) == 0
+
     def test_add_annotation(self):
         response = self.create_article()
         resp = json.loads(response.content)
